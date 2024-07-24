@@ -1,0 +1,25 @@
+/* index.css */
+.table-container {
+  width: 100%;
+  height: 500px;
+  /* Adjust the height as needed */
+  overflow: auto;
+  /* Enables scrolling */
+  border: 1px solid #ddd;
+  /* Optional: Add a border for better visibility */
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+thead th,
+tbody td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+thead th {
+  background-color: #f4f4f4;
+}
