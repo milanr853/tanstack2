@@ -1,7 +1,7 @@
-// makeData.ts
 import { faker } from '@faker-js/faker';
 
 export type Athlete = {
+    userId: string;
     name: string;
     age: number;
     country: string;
@@ -42,6 +42,7 @@ export function makeData(num: number): Athlete[] {
 
     for (let i = 0; i < num; i++) {
         data.push({
+            userId: faker.datatype.uuid(),
             name: faker.name.fullName(),
             age: faker.datatype.number({ min: 18, max: 40 }),
             country: faker.helpers.arrayElement(countries),
