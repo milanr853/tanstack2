@@ -1,57 +1,34 @@
 import { faker } from '@faker-js/faker';
 
-export type Athlete = {
-    userId: string;
-    name: string;
+// Define the Person type || column headers
+export type Person = {
+    firstName: string;
+    lastName: string;
     age: number;
-    country: string;
-    year: number;
-    date: string;
-    sport: string;
-    totalMedals: number;
+    visits: number;
+    status: string;
+    progress: number;
 };
 
-const sports = [
-    'Athletics',
-    'Swimming',
-    'Gymnastics',
-    'Cycling',
-    'Weightlifting',
-    'Boxing',
-    'Wrestling',
-    'Fencing',
-    'Judo',
-    'Shooting',
-];
+// Function to generate random Person data || column body data
+export function makeData(count: number): Person[] {
+    const data: Person[] = [];
 
-const countries = [
-    'USA',
-    'China',
-    'Russia',
-    'Japan',
-    'Germany',
-    'Australia',
-    'France',
-    'Italy',
-    'UK',
-    'Canada',
-];
-
-export function makeData(num: number): Athlete[] {
-    const data: Athlete[] = [];
-
-    for (let i = 0; i < num; i++) {
-        data.push({
-            userId: faker.datatype.uuid(),
-            name: faker.name.fullName(),
-            age: faker.datatype.number({ min: 18, max: 40 }),
-            country: faker.helpers.arrayElement(countries),
-            year: faker.date.past(30, new Date()).getFullYear(), // past 30 years
-            date: faker.date.past(30, new Date()).toLocaleDateString(),
-            sport: faker.helpers.arrayElement(sports),
-            totalMedals: faker.datatype.number({ min: 0, max: 20 }),
-        });
+    for (let i = 0; i < count; i++) {
+        const person: Person = {
+            firstName: faker.name.firstName(),  // Generate a random first name
+            lastName: faker.name.lastName(),    // Generate a random last name
+            age: faker.datatype.number({ min: 18, max: 80 }), // Random age between 18 and 80
+            visits: faker.datatype.number({ min: 0, max: 500 }), // Random number of visits
+            status: faker.helpers.arrayElement(['Single', 'In Relationship', 'Complicated', 'Married']), // Random status
+            progress: faker.datatype.number({ min: 0, max: 100 }) // Random progress percentage
+        };
+        data.push(person);
     }
 
     return data;
 }
+
+//column headers | column parameters
+//column body data
+//column schema
