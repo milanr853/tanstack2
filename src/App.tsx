@@ -5,12 +5,13 @@ import * as Imports from './imports/import';  // Import everything from imports.
 import { Person, makeData } from "./makeData"
 import Pagination from './components/Pagination'
 import MasterTable from './components/MasterTable'
-import DebouncedInput from './components/DebouncedInput'
+import { useGlobalFilter } from './context/GlobalFilterContext'; // Import the custom hook
 import { fuzzyFilter, fuzzySort, useSkipper } from './functions/helperFunctions'
 import { IndeterminateCheckbox } from "./components/InterminateCheckbox";
 import { dataApi } from "./api/api";
 import Loader from "./components/Loader";
-
+import AdditionalFeatures from "./components/AdditionalFeatureWrapper";
+import DragBtn from "./components/DragBtn";
 
 
 declare module '@tanstack/react-table' {
@@ -62,18 +63,21 @@ const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
   })
   return (
     // Alternatively, you could set these attributes on the rows themselves
-    <button {...attributes} {...listeners}>
-      🟰
-    </button>
+    <DragBtn attributes={attributes} listeners={listeners} />
   )
 }
-
-
 
 
 function App() {
   const columns = Imports.React.useMemo<Imports.ColumnDef<Person, any>[]>(
     () => [
+      {
+        id: 'drag-handle',
+        header: 'Move',
+        cell: ({ row }) => <RowDragHandleCell rowId={row.id} />,
+        size: 60,
+      },
+
       {
         id: 'select',
         header: ({ table }) => (
@@ -163,7 +167,6 @@ function App() {
 
   const [data, setData] = Imports.React.useState(() => makeData(50))
   const [columnFilters, setColumnFilters] = Imports.React.useState<Imports.ColumnFiltersState>([])
-  const [globalFilter, setGlobalFilter] = Imports.React.useState('')
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper()
   const [sorting, setSorting] = Imports.React.useState<Imports.SortingState>([])
   const [rowSelection, setRowSelection] = Imports.React.useState({})
@@ -171,6 +174,8 @@ function App() {
   const [columnPinning, setColumnPinning] = Imports.React.useState({})
   const [isSplit, setIsSplit] = Imports.React.useState(false)
   const [fetchedData, setFetchedData] = Imports.React.useState<any>(null)
+
+  const { globalFilter, setGlobalFilter } = useGlobalFilter(); // Use the custom hook
 
 
   //table schema
@@ -227,7 +232,6 @@ function App() {
     getRowId: row => row.id, //required because row indexes will change
   })
 
-
   //functions
   async function getData() {
     const data: any = await dataApi
@@ -251,17 +255,19 @@ function App() {
 
   return (
     fetchedData ?
-      <div className="bg-yellow-200 h-screen p-8 flex flex-col justify-center">
-        <DebouncedInput
-          value={globalFilter ?? ''}
-          onChange={value => setGlobalFilter(String(value))}
-          className="p-2 font-lg shadow border border-block mb-2 w-[200px]"
-          placeholder="Search all columns..."
+      <div className="bg-purple-200 h-screen p-8 flex flex-col justify-center">
+
+        <AdditionalFeatures />
+
+        <MasterTable
+          table={table}
+          columnOrder={columnOrder} setColumnOrder={setColumnOrder}
+          data={data} setData={setData} />
+
+        <Pagination
+          table={table}
+          position={fetchedData?.position}
         />
-
-        <MasterTable table={table} columnOrder={columnOrder} setColumnOrder={setColumnOrder} data={data} setData={setData} />
-
-        <Pagination table={table} position={fetchedData?.position} />
       </div>
 
       :

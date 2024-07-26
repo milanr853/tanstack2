@@ -24,9 +24,9 @@ import {
     MouseSensor,
     TouchSensor,
     closestCenter,
-    type DragEndEvent,
     useSensor,
     useSensors,
+    type DragEndEvent,
     type UniqueIdentifier,
 } from '@dnd-kit/core'
 import { restrictToHorizontalAxis, restrictToVerticalAxis } from '@dnd-kit/modifiers'
@@ -67,6 +67,8 @@ import type {
 // Export React and React Table Functions
 export {
     React,
+    useSensor,
+    useSensors,
     createColumnHelper,
     flexRender,
     getCoreRowModel,
@@ -110,8 +112,6 @@ export type {
     Table,
     RankingInfo,
     DragEndEvent,
-    useSensor,
-    useSensors
 };
 
 // Export Utilities and Custom Components

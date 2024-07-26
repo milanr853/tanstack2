@@ -7,6 +7,7 @@
 import * as Imports from '../imports/import';
 import { Person } from '../makeData';
 import DebouncedInput from './DebouncedInput'
+import DragBtn from './DragBtn';
 
 
 function Filter({ column }: { column: Imports.Column<any, unknown> }) {
@@ -71,9 +72,7 @@ const DraggableTableHeader = ({
     const style: Imports.CSSProperties = {
         opacity: isDragging ? 0.8 : 1,
         position: 'relative',
-        transform: transform
-            ? `translate(${transform.x}px, ${transform.y}px)` // Example of manual transform construction
-            : undefined,
+        transform: Imports.CSS.Translate.toString(transform), // translate instead of transform to avoid squishing
         transition: 'width transform 0.2s ease-in-out',
         whiteSpace: 'nowrap',
         width: header.column.getSize(),
@@ -108,9 +107,7 @@ const DraggableTableHeader = ({
                     ) : null}
                 </>
             )}
-            <button {...attributes} {...listeners}>
-                🟰
-            </button>
+            <DragBtn attributes={attributes} listeners={listeners} />
         </th>
 
     )
@@ -124,20 +121,15 @@ const DragAlongCell = ({ cell }: { cell: Imports.Cell<Person, unknown> }) => {
     const style: Imports.CSSProperties = {
         opacity: isDragging ? 0.8 : 1,
         position: 'relative',
-        transform: transform
-            ? `translate(${transform.x}px, ${transform.y}px)` // Example of manual transform construction
-            : undefined,
+        transform: Imports.CSS.Translate.toString(transform), // translate instead of transform to avoid squishing,
         transition: 'width transform 0.2s ease-in-out',
         width: cell.column.getSize(),
         zIndex: isDragging ? 1 : 0,
+        background: 'white'
     }
 
     return (
-        // <td style={style} ref={setNodeRef}>
-        //   {Imports.flexRender(cell.column.columnDef.cell, cell.getContext())}
-        // </td>
-
-        <td key={cell.id} style={style} ref={setNodeRef}>
+        <td className='cell' key={cell.id} style={style} ref={setNodeRef}>
             {Imports.flexRender(
                 cell.column.columnDef.cell,
                 cell.getContext()
@@ -146,71 +138,74 @@ const DragAlongCell = ({ cell }: { cell: Imports.Cell<Person, unknown> }) => {
     )
 }
 
-// Row Component
-const DraggableRow = ({ row }: { row: Imports.Row<Person> }) => {
-    const { transform, transition, setNodeRef, isDragging } = Imports.useSortable({
-        id: row.original?.id,
-    })
-
-    const style: Imports.CSSProperties = {
-        transform: Imports.CSS.Transform.toString(transform), //let dnd-kit do its thing
-        transition: transition,
-        opacity: isDragging ? 0.8 : 1,
-        zIndex: isDragging ? 1 : 0,
-        position: 'relative',
-    }
-    return (
-        // connect row ref to dnd-kit, apply important styles
-        <tr ref={setNodeRef} style={style}>
-            {row.getVisibleCells().map(cell => (
-                <td key={cell.id} style={{ width: cell.column.getSize() }}>
-                    {Imports.flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-            ))}
-        </tr>
-    )
-}
-
-
 
 function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any) {
+    const dataIds = Imports.React.useMemo<Imports.UniqueIdentifier[]>(
+        () => data?.map(({ id }: any) => id),
+        [data]
+    )
 
-    const dataIds = Imports.React.useMemo<Imports.UniqueIdentifier[]>(() => data?.map(({ id }: any) => id), [data])
+    const sensors = Imports.useSensors(
+        Imports.useSensor(Imports.MouseSensor, {}),
+        Imports.useSensor(Imports.TouchSensor, {}),
+        Imports.useSensor(Imports.KeyboardSensor, {})
+    );
 
+    // tanstack DraggableRow version
+    const DraggableRow = ({ row }: { row: Imports.Row<Person> }) => {
+        const { transform, transition, setNodeRef, isDragging } = Imports.useSortable({
+            id: row.original.id,
+        })
 
-    // reorder columns after drag & drop
+        const style: Imports.CSSProperties = {
+            transform: Imports.CSS.Transform.toString(transform), //let dnd-kit do its thing
+            transition: transition,
+            opacity: isDragging ? 0.8 : 1,
+            zIndex: isDragging ? 1 : 0,
+            position: 'relative',
+        }
+        return (
+            <tr key={row.id} ref={setNodeRef} style={style}>
+                {row.getVisibleCells().map((cell: any) => {
+                    return (
+                        <Imports.SortableContext
+
+                            key={cell.id}
+                            items={columnOrder}
+                            strategy={Imports.horizontalListSortingStrategy}
+                        >
+                            <DragAlongCell key={cell.id} cell={cell} />
+                        </Imports.SortableContext>
+                    )
+                })}
+            </tr>
+        )
+    }
+
+    //tanstack handleDragEnd logic
     function handleDragEnd(event: Imports.DragEndEvent) {
         const { active, over } = event
-        console.log({ active, over, event })
-        // if (active && over && active.id !== over.id) {
-        //     setColumnOrder((columnOrder: any) => {
-        //         const oldIndex = columnOrder.indexOf(active.id as string)
-        //         const newIndex = columnOrder.indexOf(over.id as string)
-        //         return Imports.arrayMove(columnOrder, oldIndex, newIndex) //this is just a splice util
-        //     })
-        // }
-
-        // //row
         if (active && over && active.id !== over.id) {
             setData((data: any) => {
                 const oldIndex = dataIds.indexOf(active.id)
                 const newIndex = dataIds.indexOf(over.id)
                 return Imports.arrayMove(data, oldIndex, newIndex) //this is just a splice util
             })
+            setColumnOrder((columnOrder: any) => {
+                const oldIndex = columnOrder.indexOf(active.id as string)
+                const newIndex = columnOrder.indexOf(over.id as string)
+                return Imports.arrayMove(columnOrder, oldIndex, newIndex) //this is just a splice util
+            })
         }
     }
-
-
 
     return (
         <Imports.DndContext
             collisionDetection={Imports.closestCenter}
-            modifiers={[Imports.restrictToHorizontalAxis, Imports.restrictToVerticalAxis]}
             onDragEnd={handleDragEnd}
-        // sensors={sensors}
+            sensors={sensors}
         >
-            <div className="block max-w-full overflow-x-scroll overflow-y-hidden bg-slate-100">
-                <div className="h-2" />
+            <div className="block max-w-full overflow-x-scroll">
                 <table>
                     <thead>
                         {table.getHeaderGroups().map((headerGroup: any) => (
@@ -227,28 +222,8 @@ function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any)
                         ))}
                     </thead>
 
+                    {/* tanstack version */}
                     <tbody>
-                        {/* column */}
-                        {/* {table.getRowModel().rows.map((row: any) => {
-                            return (
-                                <tr key={row.id}>
-                                    {row.getVisibleCells().map((cell: any) => {
-                                        return (
-                                            <Imports.SortableContext
-
-                                                key={cell.id}
-                                                items={columnOrder}
-                                                strategy={Imports.horizontalListSortingStrategy}
-                                            >
-                                                <DragAlongCell key={cell.id} cell={cell} />
-                                            </Imports.SortableContext>
-                                        )
-                                    })}
-                                </tr>
-                            )
-                        })} */}
-
-                        {/* row */}
                         <Imports.SortableContext
                             items={dataIds}
                             strategy={Imports.verticalListSortingStrategy}
@@ -259,10 +234,9 @@ function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any)
                         </Imports.SortableContext>
                     </tbody>
                 </table>
-                <div className="h-4" />
             </div>
         </Imports.DndContext>
     )
 }
 
-export default Imports.React.memo(MasterTable)
+export default MasterTable
