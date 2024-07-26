@@ -252,6 +252,7 @@ function App() {
   return (
     fetchedData ?
       <div className="bg-yellow-200 h-screen p-8 flex flex-col justify-center">
+
         <DebouncedInput
           value={globalFilter ?? ''}
           onChange={value => setGlobalFilter(String(value))}
@@ -259,9 +260,15 @@ function App() {
           placeholder="Search all columns..."
         />
 
-        <MasterTable table={table} columnOrder={columnOrder} setColumnOrder={setColumnOrder} data={data} setData={setData} />
+        <MasterTable
+          table={table}
+          columnOrder={columnOrder} setColumnOrder={setColumnOrder}
+          data={data} setData={setData} />
 
-        <Pagination table={table} position={fetchedData?.position} />
+        <Pagination
+          table={table}
+          position={fetchedData?.position}
+        />
       </div>
 
       :
