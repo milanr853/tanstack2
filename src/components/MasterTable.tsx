@@ -226,4 +226,4 @@ function MasterTable({ table, columnOrder, setColumnOrder, }: any) {
     )
 }
 
-export default Imports.React.memo(MasterTable)
+export default MasterTable
