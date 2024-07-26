@@ -138,13 +138,13 @@ const DragAlongCell = ({ cell }: { cell: Imports.Cell<Person, unknown> }) => {
     )
 }
 
-const sensors = Imports.useSensors(
-    Imports.useSensor(Imports.MouseSensor, {}),
-    Imports.useSensor(Imports.TouchSensor, {}),
-    Imports.useSensor(Imports.KeyboardSensor, {})
-);
 
 function MasterTable({ table, columnOrder, setColumnOrder, }: any) {
+    const sensors = Imports.useSensors(
+        Imports.useSensor(Imports.MouseSensor, {}),
+        Imports.useSensor(Imports.TouchSensor, {}),
+        Imports.useSensor(Imports.KeyboardSensor, {})
+    );
 
     // reorder columns after drag & drop
     function handleDragEnd(event: Imports.DragEndEvent) {
