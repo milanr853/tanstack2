@@ -75,6 +75,13 @@ function App() {
   const columns = Imports.React.useMemo<Imports.ColumnDef<Person, any>[]>(
     () => [
       {
+        id: 'drag-handle',
+        header: 'Move',
+        cell: ({ row }) => <RowDragHandleCell rowId={row.id} />,
+        size: 60,
+      },
+
+      {
         id: 'select',
         header: ({ table }) => (
           <IndeterminateCheckbox
