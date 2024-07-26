@@ -26,3 +26,21 @@ tbody td {
 thead th {
     background-color: #f4f4f4;
 }
+
+@layer utilities {
+    .cell input {
+        @apply w-full;
+    }
+
+    .cell button {
+        position: absolute;
+        /* or fixed depending on your use case */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+body {
+    overflow: hidden;
+}

@@ -7,6 +7,7 @@
 import * as Imports from '../imports/import';
 import { Person } from '../makeData';
 import DebouncedInput from './DebouncedInput'
+import DragBtn from './DragBtn';
 
 
 function Filter({ column }: { column: Imports.Column<any, unknown> }) {
@@ -106,9 +107,7 @@ const DraggableTableHeader = ({
                     ) : null}
                 </>
             )}
-            <button {...attributes} {...listeners}>
-                🟰
-            </button>
+            <DragBtn attributes={attributes} listeners={listeners} />
         </th>
 
     )
@@ -126,10 +125,11 @@ const DragAlongCell = ({ cell }: { cell: Imports.Cell<Person, unknown> }) => {
         transition: 'width transform 0.2s ease-in-out',
         width: cell.column.getSize(),
         zIndex: isDragging ? 1 : 0,
+        background: 'white'
     }
 
     return (
-        <td key={cell.id} style={style} ref={setNodeRef}>
+        <td className='cell' key={cell.id} style={style} ref={setNodeRef}>
             {Imports.flexRender(
                 cell.column.columnDef.cell,
                 cell.getContext()
@@ -138,34 +138,8 @@ const DragAlongCell = ({ cell }: { cell: Imports.Cell<Person, unknown> }) => {
     )
 }
 
-// chat gpt DraggableRow
-// const DraggableRow: React.FC<{
-//     row: Imports.Row<Person>;
-//     rowIndex: number;
-//     moveRow: (activeIndex: number, overIndex: number) => void;
-// }> = ({ row, rowIndex, moveRow }) => {
-//     const { attributes, listeners, setNodeRef, transform, transition } = Imports.useSortable({
-//         id: `row-${rowIndex}`,
-//     });
-
-//     const style = {
-//         transform: transform ? Imports.CSS.Transform.toString(transform) : undefined,
-//         transition: transition || undefined,
-//     };
-
-//     return (
-//         <tr ref={setNodeRef} style={style} {...attributes} {...listeners}>
-//             {row?.getVisibleCells().map((cell) => (
-//                 <td key={cell.id}>{Imports.flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-//             ))}
-//         </tr>
-//     );
-// };
-
 
 function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any) {
-    const [rowOrder, setRowOrder] = Imports.React.useState<number[]>(data.map((_: any, index: any) => index));
-
     const dataIds = Imports.React.useMemo<Imports.UniqueIdentifier[]>(
         () => data?.map(({ id }: any) => id),
         [data]
@@ -176,11 +150,6 @@ function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any)
         Imports.useSensor(Imports.TouchSensor, {}),
         Imports.useSensor(Imports.KeyboardSensor, {})
     );
-
-
-    const moveRow = (activeIndex: number, overIndex: number) => {
-        setRowOrder((prev) => Imports.arrayMove(prev, activeIndex, overIndex));
-    };
 
     // tanstack DraggableRow version
     const DraggableRow = ({ row }: { row: Imports.Row<Person> }) => {
@@ -213,31 +182,6 @@ function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any)
         )
     }
 
-    // chat-gpt handleDragEnd logic
-    // function handleDragEnd(event: Imports.DragEndEvent) {
-    //     const { active, over } = event
-
-    //     const activeId = String(active?.id);
-    //     const overId = String(over?.id);
-    //     const [activeType, activeIndex] = activeId.split('-');
-    //     const [overType, overIndex] = overId.split('-');
-
-    //     if (activeType === overType) {
-    //         if (activeType === 'row') {
-    //             moveRow(Number(active?.data?.current?.sortable?.index), Number(over?.data?.current?.sortable?.index));
-    //         }
-    //     }
-    //     else {
-    // if (active && over && active.id !== over.id) {
-    //     setColumnOrder((columnOrder: any) => {
-    //         const oldIndex = columnOrder.indexOf(active.id as string)
-    //         const newIndex = columnOrder.indexOf(over.id as string)
-    //         return Imports.arrayMove(columnOrder, oldIndex, newIndex) //this is just a splice util
-    //     })
-    //         }
-    //     }
-    // }
-
     //tanstack handleDragEnd logic
     function handleDragEnd(event: Imports.DragEndEvent) {
         const { active, over } = event
@@ -261,8 +205,7 @@ function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any)
             onDragEnd={handleDragEnd}
             sensors={sensors}
         >
-            <div className="block max-w-full overflow-x-scroll overflow-y-hidden">
-                <div className="h-2" />
+            <div className="block max-w-full overflow-x-scroll">
                 <table>
                     <thead>
                         {table.getHeaderGroups().map((headerGroup: any) => (
@@ -279,28 +222,6 @@ function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any)
                         ))}
                     </thead>
 
-                    {/* original version */}
-                    {/* <tbody>
-                        {table.getRowModel().rows.map((row: any) => {
-                            return (
-                                <tr key={row.id}>
-                                    {row.getVisibleCells().map((cell: any) => {
-                                        return (
-                                            <Imports.SortableContext
-
-                                                key={cell.id}
-                                                items={columnOrder}
-                                                strategy={Imports.horizontalListSortingStrategy}
-                                            >
-                                                <DragAlongCell key={cell.id} cell={cell} />
-                                            </Imports.SortableContext>
-                                        )
-                                    })}
-                                </tr>
-                            )
-                        })}
-                    </tbody> */}
-
                     {/* tanstack version */}
                     <tbody>
                         <Imports.SortableContext
@@ -312,18 +233,7 @@ function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any)
                             ))}
                         </Imports.SortableContext>
                     </tbody>
-
-                    {/* chat gpt version */}
-                    {/* <Imports.SortableContext items={rowOrder.map(i => `row-${i}`)} strategy={Imports.verticalListSortingStrategy}>
-                        <tbody>
-                            {rowOrder.map((rowIndex) => {
-                                const row = table.getRowModel().rows[rowIndex];
-                                return <DraggableRow key={row?.id} row={row} rowIndex={rowIndex} moveRow={moveRow} />;
-                            })}
-                        </tbody>
-                    </Imports.SortableContext> */}
                 </table>
-                <div className="h-4" />
             </div>
         </Imports.DndContext>
     )
