@@ -138,12 +138,32 @@ const DragAlongCell = ({ cell }: { cell: Imports.Cell<Person, unknown> }) => {
     )
 }
 
+const sensors = Imports.useSensors(
+    Imports.useSensor(Imports.MouseSensor, {}),
+    Imports.useSensor(Imports.TouchSensor, {}),
+    Imports.useSensor(Imports.KeyboardSensor, {})
+);
 
 function MasterTable({ table, columnOrder, setColumnOrder, }: any) {
 
     // reorder columns after drag & drop
     function handleDragEnd(event: Imports.DragEndEvent) {
         const { active, over } = event
+
+        const activeId = String(active?.id);
+        const overId = String(over?.id);
+        const [activeType, activeIndex] = activeId.split('-');
+        const [overType, overIndex] = overId.split('-');
+
+        // if (activeType === overType) {
+        //     if (activeType === 'row') {
+        //         moveRow(Number(active?.data?.current?.sortable?.index), Number(over?.data?.current?.sortable?.index));
+        //     } else if (activeType === 'column') {
+        //         moveColumn(Number(activeIndex), Number(overIndex));
+        //     }
+        // }
+
+
         console.log({ active: active, over: over })
         if (active && over && active.id !== over.id) {
             setColumnOrder((columnOrder: any) => {
@@ -159,7 +179,7 @@ function MasterTable({ table, columnOrder, setColumnOrder, }: any) {
             collisionDetection={Imports.closestCenter}
             modifiers={[Imports.restrictToHorizontalAxis]}
             onDragEnd={handleDragEnd}
-        // sensors={sensors}
+            sensors={sensors}
         >
             <div className="block max-w-full overflow-x-scroll overflow-y-hidden">
                 <div className="h-2" />
