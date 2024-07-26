@@ -13,6 +13,9 @@ import {
     SortingState,
     Header,
     Cell,
+    ColumnOrderState,
+    VisibilityState,
+    Row,
 } from '@tanstack/react-table';
 
 import {
@@ -24,12 +27,14 @@ import {
     type DragEndEvent,
     useSensor,
     useSensors,
+    type UniqueIdentifier,
 } from '@dnd-kit/core'
-import { restrictToHorizontalAxis } from '@dnd-kit/modifiers'
+import { restrictToHorizontalAxis, restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import {
     arrayMove,
     SortableContext,
     horizontalListSortingStrategy,
+    verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 // needed for row & cell level scope DnD setup
 import { useSortable } from '@dnd-kit/sortable'
@@ -76,15 +81,21 @@ export {
     TouchSensor,
     closestCenter,
     restrictToHorizontalAxis,
+    restrictToVerticalAxis,
     arrayMove,
     SortableContext,
     horizontalListSortingStrategy,
+    verticalListSortingStrategy,
     useSortable,
     CSS,
 };
 
 // Export Types
 export type {
+    Row,
+    UniqueIdentifier,
+    ColumnOrderState,
+    VisibilityState,
     Cell,
     CSSProperties,
     Header,

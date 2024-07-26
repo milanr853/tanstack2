@@ -8,6 +8,7 @@ export type Person = {
     visits: number;
     status: string;
     progress: number;
+    id: string;
 };
 
 // Function to generate random Person data || column body data
@@ -21,7 +22,8 @@ export function makeData(count: number): Person[] {
             age: faker.datatype.number({ min: 18, max: 80 }), // Random age between 18 and 80
             visits: faker.datatype.number({ min: 0, max: 500 }), // Random number of visits
             status: faker.helpers.arrayElement(['Single', 'In Relationship', 'Complicated', 'Married']), // Random status
-            progress: faker.datatype.number({ min: 0, max: 100 }) // Random progress percentage
+            progress: faker.datatype.number({ min: 0, max: 100 }), // Random progress percentage
+            id: faker.datatype.uuid(),
         };
         data.push(person);
     }

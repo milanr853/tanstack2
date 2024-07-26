@@ -55,6 +55,21 @@ const defaultColumn: Partial<Imports.ColumnDef<Person>> = {
   },
 }
 
+// Cell Component
+const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
+  const { attributes, listeners } = Imports.useSortable({
+    id: rowId,
+  })
+  return (
+    // Alternatively, you could set these attributes on the rows themselves
+    <button {...attributes} {...listeners}>
+      🟰
+    </button>
+  )
+}
+
+
+
 
 function App() {
   const columns = Imports.React.useMemo<Imports.ColumnDef<Person, any>[]>(
@@ -153,6 +168,8 @@ function App() {
   const [sorting, setSorting] = Imports.React.useState<Imports.SortingState>([])
   const [rowSelection, setRowSelection] = Imports.React.useState({})
   const [columnOrder, setColumnOrder] = Imports.React.useState<string[]>(() => columns.map(c => c.id!))
+  const [columnPinning, setColumnPinning] = Imports.React.useState({})
+  const [isSplit, setIsSplit] = Imports.React.useState(false)
   const [fetchedData, setFetchedData] = Imports.React.useState<any>(null)
 
 
@@ -166,7 +183,8 @@ function App() {
       globalFilter,
       sorting,
       rowSelection,
-      columnOrder
+      columnOrder,
+      columnPinning,
     },
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: Imports.getCoreRowModel(),
@@ -205,7 +223,10 @@ function App() {
     // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
     onRowSelectionChange: setRowSelection,
     onColumnOrderChange: setColumnOrder,
+    onColumnPinningChange: setColumnPinning,
+    getRowId: row => row.id, //required because row indexes will change
   })
+
 
   //functions
   async function getData() {
@@ -238,7 +259,7 @@ function App() {
           placeholder="Search all columns..."
         />
 
-        <MasterTable table={table} columnOrder={columnOrder} setColumnOrder={setColumnOrder} />
+        <MasterTable table={table} columnOrder={columnOrder} setColumnOrder={setColumnOrder} data={data} setData={setData} />
 
         <Pagination table={table} position={fetchedData?.position} />
       </div>

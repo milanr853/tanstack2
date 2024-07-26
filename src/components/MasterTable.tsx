@@ -146,19 +146,56 @@ const DragAlongCell = ({ cell }: { cell: Imports.Cell<Person, unknown> }) => {
     )
 }
 
+// Row Component
+const DraggableRow = ({ row }: { row: Imports.Row<Person> }) => {
+    const { transform, transition, setNodeRef, isDragging } = Imports.useSortable({
+        id: row.original?.id,
+    })
+
+    const style: Imports.CSSProperties = {
+        transform: Imports.CSS.Transform.toString(transform), //let dnd-kit do its thing
+        transition: transition,
+        opacity: isDragging ? 0.8 : 1,
+        zIndex: isDragging ? 1 : 0,
+        position: 'relative',
+    }
+    return (
+        // connect row ref to dnd-kit, apply important styles
+        <tr ref={setNodeRef} style={style}>
+            {row.getVisibleCells().map(cell => (
+                <td key={cell.id} style={{ width: cell.column.getSize() }}>
+                    {Imports.flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </td>
+            ))}
+        </tr>
+    )
+}
 
 
 
-function MasterTable({ table, columnOrder, setColumnOrder }: any) {
+function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any) {
+
+    const dataIds = Imports.React.useMemo<Imports.UniqueIdentifier[]>(() => data?.map(({ id }: any) => id), [data])
+
 
     // reorder columns after drag & drop
     function handleDragEnd(event: Imports.DragEndEvent) {
         const { active, over } = event
+        console.log({ active, over, event })
+        // if (active && over && active.id !== over.id) {
+        //     setColumnOrder((columnOrder: any) => {
+        //         const oldIndex = columnOrder.indexOf(active.id as string)
+        //         const newIndex = columnOrder.indexOf(over.id as string)
+        //         return Imports.arrayMove(columnOrder, oldIndex, newIndex) //this is just a splice util
+        //     })
+        // }
+
+        // //row
         if (active && over && active.id !== over.id) {
-            setColumnOrder((columnOrder: any) => {
-                const oldIndex = columnOrder.indexOf(active.id as string)
-                const newIndex = columnOrder.indexOf(over.id as string)
-                return Imports.arrayMove(columnOrder, oldIndex, newIndex) //this is just a splice util
+            setData((data: any) => {
+                const oldIndex = dataIds.indexOf(active.id)
+                const newIndex = dataIds.indexOf(over.id)
+                return Imports.arrayMove(data, oldIndex, newIndex) //this is just a splice util
             })
         }
     }
@@ -168,7 +205,7 @@ function MasterTable({ table, columnOrder, setColumnOrder }: any) {
     return (
         <Imports.DndContext
             collisionDetection={Imports.closestCenter}
-            modifiers={[Imports.restrictToHorizontalAxis]}
+            modifiers={[Imports.restrictToHorizontalAxis, Imports.restrictToVerticalAxis]}
             onDragEnd={handleDragEnd}
         // sensors={sensors}
         >
@@ -191,7 +228,8 @@ function MasterTable({ table, columnOrder, setColumnOrder }: any) {
                     </thead>
 
                     <tbody>
-                        {table.getRowModel().rows.map((row: any) => {
+                        {/* column */}
+                        {/* {table.getRowModel().rows.map((row: any) => {
                             return (
                                 <tr key={row.id}>
                                     {row.getVisibleCells().map((cell: any) => {
@@ -208,7 +246,17 @@ function MasterTable({ table, columnOrder, setColumnOrder }: any) {
                                     })}
                                 </tr>
                             )
-                        })}
+                        })} */}
+
+                        {/* row */}
+                        <Imports.SortableContext
+                            items={dataIds}
+                            strategy={Imports.verticalListSortingStrategy}
+                        >
+                            {table.getRowModel().rows.map((row: any) => (
+                                <DraggableRow key={row.id} row={row} />
+                            ))}
+                        </Imports.SortableContext>
                     </tbody>
                 </table>
                 <div className="h-4" />
