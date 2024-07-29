@@ -12,10 +12,11 @@ import { dataApi } from "./api/api";
 import Loader from "./components/Loader";
 import AdditionalFeatures from "./components/AdditionalFeatureWrapper";
 import DragBtn from "./components/DragBtn";
-import { Provider } from "react-redux";
-import store from "./redux/store";
+import { Provider, useSelector } from "react-redux";
+import store, { RootState } from "./redux/store";
 import Modal from "./components/Modal";
 import FileUpload from "./components/FileUpload";
+import { setData } from "./redux/slices/dataSlice";
 
 
 declare module '@tanstack/react-table' {
@@ -73,6 +74,8 @@ const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
 
 
 function App() {
+  const data = useSelector((state: RootState) => state.data.data);
+
   const columns = Imports.React.useMemo<Imports.ColumnDef<Person, any>[]>(
     () => [
       {
@@ -169,7 +172,7 @@ function App() {
     []
   )
 
-  const [data, setData] = Imports.React.useState(() => makeData(50))
+  // const [data, setData] = Imports.React.useState(() => makeData(50))
   const [columnFilters, setColumnFilters] = Imports.React.useState<Imports.ColumnFiltersState>([])
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper()
   const [sorting, setSorting] = Imports.React.useState<Imports.SortingState>([])
@@ -212,8 +215,8 @@ function App() {
       updateData: (rowIndex, columnId, value) => {
         // Skip page index reset until after next rerender
         skipAutoResetPageIndex()
-        setData(old =>
-          old.map((row, index) => {
+        setData((old: any) =>
+          old.map((row: any, index: any) => {
             if (index === rowIndex) {
               return {
                 ...old[rowIndex]!,
@@ -259,7 +262,6 @@ function App() {
 
   return (
     fetchedData ?
-      <Provider store={store}>
         <div className="bg-purple-200 h-screen p-8 flex flex-col justify-center">
           <Modal title="Drop Your File" ContentComponent={FileUpload} />
 
@@ -275,7 +277,6 @@ function App() {
             position={fetchedData?.position}
           />
         </div>
-      </Provider>
 
 
 
