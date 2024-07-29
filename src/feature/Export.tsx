@@ -1,7 +1,7 @@
 import { TbTableExport } from 'react-icons/tb';
 import Papa from 'papaparse';
 
-function DataExport({ data }: any) {
+function DataExport({ data, styles }: any) {
     const dataExport = () => {
         // Convert data to CSV
         const csv = Papa.unparse(data);
@@ -20,12 +20,10 @@ function DataExport({ data }: any) {
     }
 
     return (
-        <div>
-            <TbTableExport
-                onClick={dataExport}
-                className="shadow-md rounded-md bg-white w-[35px] h-[35px] text-gray-300 cursor-pointer"
-            />
-        </div>
+        <TbTableExport
+            onClick={dataExport}
+            className={styles}
+        />
     )
 }
 
