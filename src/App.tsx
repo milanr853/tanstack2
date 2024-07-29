@@ -17,6 +17,7 @@ import FileUpload from "./components/FileUpload";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/store";
+import { InputCellType } from "./components/CellTypes";
 
 
 declare module '@tanstack/react-table' {
@@ -113,6 +114,9 @@ function App() {
         accessorKey: 'firstName',
         id: 'firstName',
         header: () => <span>First Name</span>,
+        cell: (info) => (
+          <InputCellType input_type={'text'} info={info} updateData={updateData} />
+        ),
         meta: {
           filterVariant: 'text',
         },
@@ -121,52 +125,74 @@ function App() {
         accessorKey: 'lastName',
         id: 'lastName',
         header: () => <span>Last Name</span>,
+        cell: (info) => (
+          <InputCellType input_type={'text'} info={info} updateData={updateData} />
+        ),
         meta: {
           filterVariant: 'text',
         },
       },
+
       {
         accessorKey: 'fullName',
         accessorFn: row => `${row.firstName} ${row.lastName}`,
         id: 'fullName',
         header: () => <span>Full Name</span>,
+        cell: (info) => (
+          <InputCellType info={info} />
+        ),
         meta: {
           filterVariant: 'text',
         },
         sortingFn: fuzzySort, //sort by fuzzy rank (falls back to alphanumeric)
       },
+
       {
         accessorKey: 'age',
         id: 'age',
         header: () => 'Age',
+        cell: (info) => (
+          <InputCellType input_type={'number'} info={info} updateData={updateData} />
+        ),
         meta: {
           filterVariant: 'range',
         },
       },
+
       {
         accessorKey: 'visits',
         header: () => <span>Visits</span>,
         id: "visits",
+        cell: (info) => (
+          <InputCellType input_type={'number'} info={info} updateData={updateData} />
+        ),
         meta: {
           filterVariant: 'range',
         },
       },
+
       {
         accessorKey: 'status',
         id: 'status',
         header: () => <span>Status</span>,
+        cell: (info) => (
+          <InputCellType input_type={'checkbox'} info={info} updateData={updateData} options={["Single", "Married", "In Relationship", "Complicated"]} />
+        ),
         meta: {
           filterVariant: 'select',
         },
       },
+
       {
         accessorKey: 'progress',
         id: 'progress',
         header: () => <span>Profile Progress</span>,
+        cell: (info) =>
+          <InputCellType input_type={'progress'} info={info} />,
         meta: {
           filterVariant: 'range',
         },
-      },
+      }
     ],
     []
   )
@@ -184,11 +210,24 @@ function App() {
 
   const { globalFilter, setGlobalFilter } = useGlobalFilter(); // Use the custom hook
 
+  function updateData(rowIndex: number, columnId: string, value: any) {
+    setData(old =>
+      old.map((row, index) => {
+        if (index === rowIndex) {
+          return {
+            ...row,
+            [columnId]: value,
+          };
+        }
+        return row;
+      })
+    );
+  };
+
 
   useEffect(() => {
     if (!importData) return
     setData(importData)
-
   }, [importData])
 
 
@@ -270,7 +309,10 @@ function App() {
   return (
     fetchedData ?
       <div className="bg-purple-200 h-screen p-8 flex flex-col justify-center">
-        <Modal title="Drop Your File" ContentComponent={FileUpload} />
+        <Modal
+          title="Drop Your File"
+          ContentComponent={FileUpload}
+        />
 
         <AdditionalFeatures
           data={data}
@@ -288,8 +330,6 @@ function App() {
           position={fetchedData?.position}
         />
       </div>
-
-
 
       :
 
