@@ -175,10 +175,7 @@ const DraggableRow = ({ row, columnOrder }: { row: Imports.Row<Person>, columnOr
 
 
 function MasterTable({ table, columnOrder, setColumnOrder, data, setData }: any) {
-    const dataIds = Imports.React.useMemo<Imports.UniqueIdentifier[]>(
-        () => data?.map(({ id }: any) => id),
-        [data]
-    )
+    const dataIds = Imports.React.useMemo<Imports.UniqueIdentifier[]>(() => { return data?.map(({ id }: any) => id) }, [data])
 
     const sensors = Imports.useSensors(
         Imports.useSensor(Imports.MouseSensor, {}),

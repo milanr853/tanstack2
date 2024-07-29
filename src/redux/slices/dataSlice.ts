@@ -1,21 +1,20 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { makeData, Person } from '../../makeData';
+import { createSlice } from '@reduxjs/toolkit';
 
 
 
 const initialState = {
-    data: makeData(50),
+    data: null,
 };
 
 const dataSlice = createSlice({
     name: 'data',
     initialState,
     reducers: {
-        setData(state, action) {
+        setImportData(state, action) {
             state.data = action.payload;
         },
     },
 });
 
-export const { setData } = dataSlice.actions;
+export const { setImportData } = dataSlice.actions;
 export default dataSlice.reducer;

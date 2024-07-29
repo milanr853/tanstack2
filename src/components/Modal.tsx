@@ -34,8 +34,7 @@ const Modal: React.FC<ModalProps> = ({ title, ContentComponent }) => {
         <div className="fixed inset-0 bg-gray-800 bg-opacity-70 flex justify-center items-center z-50">
             <div
                 id="modal"
-                className="bg-white p-8 rounded-lg shadow-lg w-80"
-            >
+                className="bg-white p-8 rounded-lg shadow-lg w-80">
                 <h2 className="text-xl mb-4 text-center font-semibold">{title}</h2>
                 <ContentComponent /> {/* Render the content component */}
             </div>

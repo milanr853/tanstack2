@@ -12,11 +12,11 @@ import { dataApi } from "./api/api";
 import Loader from "./components/Loader";
 import AdditionalFeatures from "./components/AdditionalFeatureWrapper";
 import DragBtn from "./components/DragBtn";
-import { Provider, useSelector } from "react-redux";
-import store, { RootState } from "./redux/store";
 import Modal from "./components/Modal";
 import FileUpload from "./components/FileUpload";
-import { setData } from "./redux/slices/dataSlice";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "./redux/store";
 
 
 declare module '@tanstack/react-table' {
@@ -74,7 +74,6 @@ const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
 
 
 function App() {
-  const data = useSelector((state: RootState) => state.data.data);
 
   const columns = Imports.React.useMemo<Imports.ColumnDef<Person, any>[]>(
     () => [
@@ -172,17 +171,25 @@ function App() {
     []
   )
 
-  // const [data, setData] = Imports.React.useState(() => makeData(50))
+  const importData = useSelector((store: RootState) => store.importData.data)
+
+  const [data, setData] = Imports.React.useState(() => makeData(50))
   const [columnFilters, setColumnFilters] = Imports.React.useState<Imports.ColumnFiltersState>([])
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper()
   const [sorting, setSorting] = Imports.React.useState<Imports.SortingState>([])
   const [rowSelection, setRowSelection] = Imports.React.useState({})
   const [columnOrder, setColumnOrder] = Imports.React.useState<string[]>(() => columns.map(c => c.id!))
   const [columnPinning, setColumnPinning] = Imports.React.useState({})
-  const [isSplit, setIsSplit] = Imports.React.useState(false)
   const [fetchedData, setFetchedData] = Imports.React.useState<any>(null)
 
   const { globalFilter, setGlobalFilter } = useGlobalFilter(); // Use the custom hook
+
+
+  useEffect(() => {
+    if (!importData) return
+    setData(importData)
+
+  }, [importData])
 
 
   //table schema
@@ -262,21 +269,25 @@ function App() {
 
   return (
     fetchedData ?
-        <div className="bg-purple-200 h-screen p-8 flex flex-col justify-center">
-          <Modal title="Drop Your File" ContentComponent={FileUpload} />
+      <div className="bg-purple-200 h-screen p-8 flex flex-col justify-center">
+        <Modal title="Drop Your File" ContentComponent={FileUpload} />
 
-          <AdditionalFeatures data={data} />
+        <AdditionalFeatures
+          data={data}
+        />
 
-          <MasterTable
-            table={table}
-            columnOrder={columnOrder} setColumnOrder={setColumnOrder}
-            data={data} setData={setData} />
+        <MasterTable
+          table={table}
+          columnOrder={columnOrder} setColumnOrder={setColumnOrder}
+          data={data}
+          setData={setData}
+        />
 
-          <Pagination
-            table={table}
-            position={fetchedData?.position}
-          />
-        </div>
+        <Pagination
+          table={table}
+          position={fetchedData?.position}
+        />
+      </div>
 
 
 

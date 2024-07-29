@@ -4,7 +4,7 @@ import Papa from 'papaparse';
 import { closeModal } from '../redux/slices/modalSlice';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../redux/store';
-import { setData } from '../redux/slices/dataSlice';
+import { setImportData } from '../redux/slices/dataSlice';
 
 const FileUpload: React.FC = () => {
     const { setNodeRef, isOver } = useDroppable({
@@ -31,9 +31,9 @@ const FileUpload: React.FC = () => {
                     Papa.parse(csvData, {
                         header: true,
                         complete: (result) => {
-                            dispatch(setData(result.data));
                             dispatch(closeModal())
-                            // alert('data uploaded')
+                            dispatch(setImportData(result.data))
+                            alert('data uploaded')
                             // console.log('Parsed JSON data:', result.data);
                         },
                         error: (error: any) => {
