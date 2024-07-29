@@ -12,6 +12,10 @@ import { dataApi } from "./api/api";
 import Loader from "./components/Loader";
 import AdditionalFeatures from "./components/AdditionalFeatureWrapper";
 import DragBtn from "./components/DragBtn";
+import { Provider } from "react-redux";
+import store from "./redux/store";
+import Modal from "./components/Modal";
+import FileUpload from "./components/FileUpload";
 
 
 declare module '@tanstack/react-table' {
@@ -255,20 +259,25 @@ function App() {
 
   return (
     fetchedData ?
-      <div className="bg-purple-200 h-screen p-8 flex flex-col justify-center">
+      <Provider store={store}>
+        <div className="bg-purple-200 h-screen p-8 flex flex-col justify-center">
+          <Modal title="Drop Your File" ContentComponent={FileUpload} />
 
-        <AdditionalFeatures data={data} />
+          <AdditionalFeatures data={data} />
 
-        <MasterTable
-          table={table}
-          columnOrder={columnOrder} setColumnOrder={setColumnOrder}
-          data={data} setData={setData} />
+          <MasterTable
+            table={table}
+            columnOrder={columnOrder} setColumnOrder={setColumnOrder}
+            data={data} setData={setData} />
 
-        <Pagination
-          table={table}
-          position={fetchedData?.position}
-        />
-      </div>
+          <Pagination
+            table={table}
+            position={fetchedData?.position}
+          />
+        </div>
+      </Provider>
+
+
 
       :
 
