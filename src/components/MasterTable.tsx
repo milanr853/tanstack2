@@ -67,8 +67,9 @@ const DraggableTableHeader = ({
 }) => {
     const { attributes, isDragging, listeners, setNodeRef, transform } =
         Imports.useSortable({
-            id: header.column.id,
+            id: header.id,
         })
+
     const style: Imports.CSSProperties = {
         opacity: isDragging ? 0.8 : 1,
         position: 'relative',
@@ -79,7 +80,7 @@ const DraggableTableHeader = ({
         zIndex: isDragging ? 1 : 0,
     }
     return (
-        <th key={header.id} colSpan={header.colSpan}
+        <th colSpan={header.colSpan}
             ref={setNodeRef}
             style={style}
         >
@@ -130,7 +131,7 @@ const DragAlongCell = ({ cell }: { cell: Imports.Cell<Person, unknown> }) => {
         background: 'white'
     }
     return (
-        <td className='cell' key={cell.id} style={style}
+        <td className='cell' style={style}
             ref={setNodeRef}
         >
             {Imports.flexRender(
@@ -143,9 +144,10 @@ const DragAlongCell = ({ cell }: { cell: Imports.Cell<Person, unknown> }) => {
 
 // for table body | rows | tr
 const DraggableRow = ({ row, columnOrder }: { row: Imports.Row<Person>, columnOrder: [] }) => {
-    const { transform, transition, setNodeRef, isDragging } = Imports.useSortable({
-        id: row.original.id,
-    })
+    const { transform, transition, setNodeRef, isDragging } =
+        Imports.useSortable({
+            id: row.id,
+        })
 
     const style: Imports.CSSProperties = {
         transform: Imports.CSS.Transform.toString(transform), //let dnd-kit do its thing
@@ -156,21 +158,17 @@ const DraggableRow = ({ row, columnOrder }: { row: Imports.Row<Person>, columnOr
     }
 
     return (
-        <tr key={row.id}
-            ref={setNodeRef}
-            style={style}
-        >
-            {row.getVisibleCells().map((cell: any) => {
-                return (
-                    <Imports.SortableContext
-                        key={cell.id}
-                        items={columnOrder}
-                        strategy={Imports.horizontalListSortingStrategy}
-                    >
+        <tr ref={setNodeRef} style={style}>
+            <Imports.SortableContext
+                items={columnOrder}
+                strategy={Imports.horizontalListSortingStrategy}
+            >
+                {row.getVisibleCells().map((cell: any) => {
+                    return (
                         <DragAlongCell key={cell.id} cell={cell} />
-                    </Imports.SortableContext>
-                )
-            })}
+                    )
+                })}
+            </Imports.SortableContext>
         </tr>
     )
 }

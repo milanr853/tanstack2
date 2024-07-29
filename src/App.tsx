@@ -257,7 +257,7 @@ function App() {
     fetchedData ?
       <div className="bg-purple-200 h-screen p-8 flex flex-col justify-center">
 
-        <AdditionalFeatures />
+        <AdditionalFeatures data={data} />
 
         <MasterTable
           table={table}
